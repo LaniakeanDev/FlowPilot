@@ -27,7 +27,7 @@ export default function OptimizationResults() {
 
   // Carbon emissions calculation (approximate)
   // Average truck CO2 emissions: ~2.5 kg CO2 per km
-  const CO2_PER_KM = 2.5;
+  const CO2_PER_KM = 1.5;
   const totalCO2 = optimizationResult.totalDistance * CO2_PER_KM;
   const previousCO2 = optimizationResult.previousTotalDistance * CO2_PER_KM;
   const co2Savings = previousCO2 - totalCO2;

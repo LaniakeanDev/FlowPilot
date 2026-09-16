@@ -22,12 +22,12 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="flex-1 flex p-4 gap-4">
         {/* Left Panel - Truck List */}
-        <div className="w-1/4 min-w-[280px]">
+        <div className="w-1/4 min-w-[600px]">
           <TruckList />
         </div>
 
         {/* Center Panel - Car List or Map */}
-        <div className="flex-1 min-w-[400px]">
+        <div className="w-1/4 min-w-[280px]">
           {viewMode === 'list' ? (
             <CarList />
           ) : (
