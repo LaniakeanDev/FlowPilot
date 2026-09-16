@@ -1,6 +1,6 @@
 // FlowPilot - Route Optimization Algorithm
 
-import type { Truck, Car, Location, Route, OptimizationResult, OptimizationInput, RouteStop } from '../../lib/types';
+import type { Truck, Car, Location, Route, OptimizationResult, OptimizationInput, RouteStop, CarCluster } from '../../lib/types';
 import { clusterCarsByDestination, sortClustersBySize, filterFittingClusters } from './cluster';
 import { solveTSPNearestNeighbor, calculateTotalDistanceForAllRoutes } from './route';
 import { estimateDrivingTime } from './distance';
@@ -25,15 +25,31 @@ function getCoordinates(locations: Location[], locationId: string): { lat: numbe
 }
 
 /**
+ * Simple Haversine distance calculation
+ */
+function calculateDistanceBetweenCoords(coord1: { lat: number; lng: number }, coord2: { lat: number; lng: number }): number {
+  const toRadians = (deg: number) => deg * (Math.PI / 180);
+  const lat1 = toRadians(coord1.lat);
+  const lon1 = toRadians(coord1.lng);
+  const lat2 = toRadians(coord2.lat);
+  const lon2 = toRadians(coord2.lng);
+  const dLat = lat2 - lat1;
+  const dLon = lon2 - lon1;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return 6371 * c; // Earth radius in km
+}
+
+/**
  * Assign clusters to trucks using First-Fit Decreasing algorithm
  * Largest clusters are assigned first to maximize efficiency
  */
 function assignClustersToTrucks(
-  clusters: ReturnType<typeof clusterCarsByDestination>,
+  clusters: CarCluster[],
   trucks: Truck[],
   locations: Location[]
-): Map<string, { truck: Truck; cluster: ReturnType<typeof clusterCarsByDestination>[number] }> {
-  const assignments = new Map<string, { truck: Truck; cluster: ReturnType<typeof clusterCarsByDestination>[number] }>();
+): Map<string, { truck: Truck; cluster: CarCluster }> {
+  const assignments = new Map<string, { truck: Truck; cluster: CarCluster }>();
   const sortedClusters = sortClustersBySize(clusters);
   const availableTrucks = [...trucks].sort((a, b) => {
     // Prefer trucks that are already at the cluster's pickup location
@@ -87,7 +103,7 @@ function assignClustersToTrucks(
  * Build routes from cluster assignments
  */
 function buildRoutes(
-  assignments: Map<string, { truck: Truck; cluster: ReturnType<typeof clusterCarsByDestination>[number] }>,
+  assignments: Map<string, { truck: Truck; cluster: CarCluster }>,
   locations: Location[]
 ): Route[] {
   const routes: Route[] = [];
@@ -103,22 +119,28 @@ function buildRoutes(
     const depot = locationMap.get(truck.currentLocation);
     const deliveryLoc = locationMap.get(destination);
     
-    if (!depot || !deliveryLoc) continue;
+    if (!depot || !deliveryLoc) {
+      console.warn(`Missing depot or delivery location for truck ${truck.id}`);
+      continue;
+    }
 
     // For simplicity, assume all cars in the cluster are picked up from the same location
     // and delivered to the same location
     const pickupLoc = locationMap.get(cluster.cars[0].pickupLocation);
     
+    if (!pickupLoc) {
+      console.warn(`Missing pickup location for cluster destination ${destination}`);
+      continue;
+    }
+
     const stops: RouteStop[] = [];
     
     // Pickup stop
-    if (pickupLoc) {
-      stops.push({
-        location: pickupLoc,
-        cars: cluster.cars,
-        type: 'pickup',
-      });
-    }
+    stops.push({
+      location: pickupLoc,
+      cars: cluster.cars,
+      type: 'pickup',
+    });
 
     // Delivery stop
     stops.push({
@@ -153,64 +175,6 @@ function buildRoutes(
   }
 
   return routes;
-}
-
-/**
- * Simple Haversine distance calculation (duplicated to avoid import)
- */
-function calculateDistanceBetweenCoords(coord1: { lat: number; lng: number }, coord2: { lat: number; lng: number }): number {
-  const toRadians = (deg: number) => deg * (Math.PI / 180);
-  const lat1 = toRadians(coord1.lat);
-  const lon1 = toRadians(coord1.lng);
-  const lat2 = toRadians(coord2.lat);
-  const lon2 = toRadians(coord2.lng);
-  const dLat = lat2 - lat1;
-  const dLon = lon2 - lon1;
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return 6371 * c; // Earth radius in km
-}
-
-/**
- * Main optimization function
- */
-export function optimizeRoutes(input: OptimizationInput): OptimizationResult {
-  const { trucks, cars, locations } = input;
-
-  // Step 1: Cluster cars by destination
-  const clusters = clusterCarsByDestination(cars);
-
-  // Step 2: Assign clusters to trucks
-  const assignments = assignClustersToTrucks(clusters, trucks, locations);
-
-  // Step 3: Build routes from assignments
-  const routes = buildRoutes(assignments, locations);
-
-  // Calculate total distance
-  const totalDistance = routes.reduce((sum, route) => sum + route.totalDistance, 0);
-
-  // Calculate previous total distance (current assignments)
-  const previousTotalDistance = calculatePreviousDistance(cars, trucks, locations);
-
-  // Find unassigned cars
-  const assignedVins = new Set<string>();
-  routes.forEach(route => {
-    route.stops.forEach(stop => {
-      stop.cars.forEach(car => {
-        assignedVins.add(car.vin);
-      });
-    });
-  });
-
-  const unassignedCars = cars.filter(car => !assignedVins.has(car.vin));
-
-  return {
-    routes,
-    unassignedCars,
-    totalDistance,
-    previousTotalDistance,
-    savings: previousTotalDistance - totalDistance,
-  };
 }
 
 /**
@@ -270,6 +234,103 @@ function calculatePreviousDistance(cars: Car[], trucks: Truck[], locations: Loca
   }
 
   return totalDistance;
+}
+
+/**
+ * Validate optimization input
+ */
+function validateInput(input: OptimizationInput): { valid: boolean; error?: string } {
+  if (!input.trucks || input.trucks.length === 0) {
+    return { valid: false, error: 'No trucks available for optimization' };
+  }
+  if (!input.cars || input.cars.length === 0) {
+    return { valid: false, error: 'No cars to optimize' };
+  }
+  if (!input.locations || input.locations.length === 0) {
+    return { valid: false, error: 'No locations available' };
+  }
+  return { valid: true };
+}
+
+/**
+ * Main optimization function
+ */
+export function optimizeRoutes(input: OptimizationInput): OptimizationResult {
+  // Validate input
+  const validation = validateInput(input);
+  if (!validation.valid) {
+    console.error(`Optimization validation failed: ${validation.error}`);
+    return {
+      routes: [],
+      unassignedCars: input.cars,
+      totalDistance: 0,
+      previousTotalDistance: calculatePreviousDistance(input.cars, input.trucks, input.locations),
+      savings: 0,
+    };
+  }
+
+  const { trucks, cars, locations } = input;
+
+  // Step 1: Cluster cars by destination
+  const clusters = clusterCarsByDestination(cars);
+  
+  if (clusters.length === 0) {
+    console.warn('No clusters created from cars');
+    return {
+      routes: [],
+      unassignedCars: cars,
+      totalDistance: 0,
+      previousTotalDistance: calculatePreviousDistance(cars, trucks, locations),
+      savings: 0,
+    };
+  }
+
+  // Step 2: Assign clusters to trucks
+  const assignments = assignClustersToTrucks(clusters, trucks, locations);
+
+  // Step 3: Build routes from assignments
+  const routes = buildRoutes(assignments, locations);
+
+  // Calculate total distance
+  const totalDistance = routes.reduce((sum, route) => sum + route.totalDistance, 0);
+
+  // Calculate previous total distance (current assignments)
+  const previousTotalDistance = calculatePreviousDistance(cars, trucks, locations);
+
+  // Find unassigned cars
+  const assignedVins = new Set<string>();
+  routes.forEach(route => {
+    route.stops.forEach(stop => {
+      stop.cars.forEach(car => {
+        assignedVins.add(car.vin);
+      });
+    });
+  });
+
+  // Start with cars not in any route
+  let unassignedCars = cars.filter(car => !assignedVins.has(car.vin));
+
+  // Add cars from clusters that couldn't be assigned
+  for (const cluster of clusters) {
+    if (!assignments.has(cluster.destination)) {
+      // This entire cluster wasn't assigned
+      unassignedCars = unassignedCars.concat(cluster.cars.filter(car => !assignedVins.has(car.vin)));
+    }
+  }
+
+  // Remove duplicates
+  const uniqueUnassignedVins = new Set(unassignedCars.map(c => c.vin));
+  unassignedCars = unassignedCars.filter((car, index, self) => 
+    self.findIndex(c => c.vin === car.vin) === index
+  );
+
+  return {
+    routes,
+    unassignedCars,
+    totalDistance,
+    previousTotalDistance,
+    savings: previousTotalDistance - totalDistance,
+  };
 }
 
 export default {
