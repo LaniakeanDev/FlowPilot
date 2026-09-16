@@ -21,6 +21,10 @@ export default function OptimizationResults() {
   const routes = optimizationResult.routes;
   const hasUnassigned = optimizationResult.unassignedCars.length > 0;
 
+  // Only show savings if there's a meaningful comparison
+  const hasMeaningfulSavings = optimizationResult.previousTotalDistance > 0;
+  const showSavings = hasMeaningfulSavings && Math.abs(optimizationResult.savings) > 0.1;
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
@@ -51,7 +55,7 @@ export default function OptimizationResults() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {/* Summary Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className={`grid gap-4 mb-6 ${showSavings ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
               <p className="text-sm text-gray-600">Total Routes</p>
               <p className="text-3xl font-bold text-blue-600 mt-1">{routes.length}</p>
@@ -62,57 +66,57 @@ export default function OptimizationResults() {
                 {optimizationResult.totalDistance.toFixed(1)} km
               </p>
             </div>
-            <div className={`rounded-lg p-4 border ${
-              optimizationResult.savings > 0
-                ? 'bg-emerald-50 border-emerald-200'
-                : optimizationResult.savings < 0
-                ? 'bg-orange-50 border-orange-200'
-                : 'bg-gray-50 border-gray-200'
-            }`}>
-              <p className="text-sm text-gray-600">Savings</p>
-              <p className={`text-3xl font-bold mt-1 ${
+            {showSavings && (
+              <div className={`rounded-lg p-4 border ${
                 optimizationResult.savings > 0
-                  ? 'text-emerald-600'
-                  : optimizationResult.savings < 0
-                  ? 'text-orange-600'
-                  : 'text-gray-600'
+                  ? 'bg-emerald-50 border-emerald-200'
+                  : 'bg-orange-50 border-orange-200'
               }`}>
-                {optimizationResult.savings > 0 ? '+' : ''}{optimizationResult.savings.toFixed(1)} km
-              </p>
-            </div>
+                <p className="text-sm text-gray-600">Savings</p>
+                <p className={`text-3xl font-bold mt-1 ${
+                  optimizationResult.savings > 0
+                    ? 'text-emerald-600'
+                    : 'text-orange-600'
+                }`}>
+                  {optimizationResult.savings > 0 ? '+' : ''}{optimizationResult.savings.toFixed(1)} km
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Previous Distance */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Previous Distance</p>
-                <p className="text-xl font-semibold text-gray-900 mt-1">
-                  {optimizationResult.previousTotalDistance.toFixed(1)} km
-                </p>
-              </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                />
-              </svg>
-              <div>
-                <p className="text-sm text-gray-600">New Distance</p>
-                <p className="text-xl font-semibold text-gray-900 mt-1">
-                  {optimizationResult.totalDistance.toFixed(1)} km
-                </p>
+          {/* Previous Distance - Only show if there's previous distance to compare */}
+          {hasMeaningfulSavings && (
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Previous Distance</p>
+                  <p className="text-xl font-semibold text-gray-900 mt-1">
+                    {optimizationResult.previousTotalDistance.toFixed(1)} km
+                  </p>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                  />
+                </svg>
+                <div>
+                  <p className="text-sm text-gray-600">New Distance</p>
+                  <p className="text-xl font-semibold text-gray-900 mt-1">
+                    {optimizationResult.totalDistance.toFixed(1)} km
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Warnings */}
           {hasUnassigned && (
