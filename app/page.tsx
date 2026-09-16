@@ -5,6 +5,7 @@
 import Header from '../components/Header';
 import TruckList from '../components/TruckList';
 import CarList from '../components/CarList';
+import DetailsPanel from '../components/DetailsPanel';
 import AIChatSidebar from '../components/AIChatSidebar';
 import MapView from '../components/MapView';
 import OptimizationResults from '../components/OptimizationResults';
@@ -21,7 +22,7 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="flex-1 flex p-4 gap-4">
         {/* Left Panel - Truck List */}
-        <div className="w-1/3 min-w-[300px]">
+        <div className="w-1/4 min-w-[280px]">
           <TruckList />
         </div>
 
@@ -34,9 +35,17 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Right Panel - AI Chat Sidebar */}
-        <div className="w-1/4 min-w-[250px] max-w-[350px]">
-          <AIChatSidebar />
+        {/* Right Panel - Details + AI Sidebar */}
+        <div className="w-1/3 min-w-[320px] flex flex-col gap-4">
+          {/* Details Panel */}
+          <div className="flex-1">
+            <DetailsPanel />
+          </div>
+
+          {/* AI Chat Sidebar */}
+          <div className="h-80">
+            <AIChatSidebar />
+          </div>
         </div>
       </main>
 
