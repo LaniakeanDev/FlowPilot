@@ -7,6 +7,7 @@ import TruckList from '../components/TruckList';
 import CarList from '../components/CarList';
 import AIChatSidebar from '../components/AIChatSidebar';
 import MapView from '../components/MapView';
+import OptimizationResults from '../components/OptimizationResults';
 import { useViewMode } from '../context/PlanningContext';
 
 export default function DashboardPage() {
@@ -38,6 +39,9 @@ export default function DashboardPage() {
           <AIChatSidebar />
         </div>
       </main>
+
+      {/* Optimization Results Modal */}
+      <OptimizationResults />
 
       {/* View Toggle */}
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2">
