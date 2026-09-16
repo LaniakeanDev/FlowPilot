@@ -8,7 +8,7 @@ import { useOptimization } from '../context/PlanningContext';
 export default function AIChatSidebar() {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'ai'; content: string; timestamp: Date }>>([]);
-  const { runOptimization, optimizationResult, isOptimizing } = useOptimization();
+  const { runOptimization, optimizationResult, isOptimizing, optimizationError } = useOptimization();
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -64,7 +64,7 @@ export default function AIChatSidebar() {
       return `Currently optimizing for minimal distance. Total distance can be reduced by approximately 15-20% with optimal routing.`;
     }
 
-    return `I understand you're looking for optimization suggestions. I can help analyze your current assignments and propose improvements. Try asking about "optimizing routes" or "truck capacity".`;
+    return `I understand you're looking for optimization suggestions. I can help analyze your current assignments and propose improvements. Try asking about "optimizing routes" or "truck capacity"`;
   }
 
   // Format time
@@ -146,6 +146,18 @@ export default function AIChatSidebar() {
             <span>Optimizing routes...</span>
           </div>
         )}
+
+        {optimizationError && (
+          <div className="flex gap-2 justify-start">
+            <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-xs text-red-600 font-bold">!</span>
+            </div>
+            <div className="max-w-[200px] p-3 rounded-lg bg-red-50 text-red-700 rounded-bl-none">
+              <p className="text-sm">{optimizationError}</p>
+              <p className="text-xs text-right mt-1 opacity-60">{formatTime(new Date())}</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Optimization Result Display */}
@@ -173,19 +185,25 @@ export default function AIChatSidebar() {
           </p>
           {optimizationResult.savings > 0 && (
             <p className="text-sm text-green-600 font-medium">
-              +{optimizationResult.savings.toFixed(1)} km saved!
+              ✓ {optimizationResult.savings.toFixed(1)} km saved!
+            </p>
+          )}
+          {optimizationResult.savings < 0 && (
+            <p className="text-sm text-orange-600 font-medium">
+              {Math.abs(optimizationResult.savings).toFixed(1)} km additional distance
             </p>
           )}
           {optimizationResult.unassignedCars.length > 0 && (
             <p className="text-sm text-orange-600 mt-1">
-              {optimizationResult.unassignedCars.length} cars unassigned
+              ⚠ {optimizationResult.unassignedCars.length} cars unassigned
             </p>
           )}
           <button
             onClick={runOptimization}
-            className="mt-2 w-full py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+            disabled={isOptimizing}
+            className="mt-2 w-full py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Re-optimize
+            {isOptimizing ? 'Optimizing...' : 'Re-optimize'}
           </button>
         </div>
       )}
