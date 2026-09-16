@@ -30,6 +30,7 @@ interface PlanningState {
   routes: Route[];
   optimizationResult: OptimizationResult | null;
   isOptimizing: boolean;
+  optimizationError: string | null;
   
   // Search
   searchQuery: string;
@@ -148,6 +149,7 @@ export function PlanningProvider({ children }: PlanningProviderProps) {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
   const [isOptimizing, setIsOptimizing] = useState<boolean>(false);
+  const [optimizationError, setOptimizationError] = useState<string | null>(null);
 
   // ============================================
   // Assignment Actions
@@ -253,6 +255,7 @@ export function PlanningProvider({ children }: PlanningProviderProps) {
     });
     setRoutes([]);
     setOptimizationResult(null);
+    setOptimizationError(null);
   }, []);
 
   // ============================================
@@ -260,8 +263,32 @@ export function PlanningProvider({ children }: PlanningProviderProps) {
   // ============================================
 
   const runOptimization = useCallback(async () => {
+    // Validate data before running optimization
+    if (trucks.length === 0) {
+      const errorMsg = 'Cannot optimize: No trucks available';
+      console.error(errorMsg);
+      setOptimizationError(errorMsg);
+      return;
+    }
+
+    if (cars.length === 0) {
+      const errorMsg = 'Cannot optimize: No cars to optimize';
+      console.error(errorMsg);
+      setOptimizationError(errorMsg);
+      return;
+    }
+
+    if (locations.length === 0) {
+      const errorMsg = 'Cannot optimize: No locations available';
+      console.error(errorMsg);
+      setOptimizationError(errorMsg);
+      return;
+    }
+
     setIsOptimizing(true);
+    setOptimizationError(null);
     console.log('Running optimization...');
+    
     try {
       // Import optimization algorithm (lazy import to avoid circular dependencies)
       const { optimizeRoutes } = await import('../lib/algorithms/optimize');
@@ -271,11 +298,33 @@ export function PlanningProvider({ children }: PlanningProviderProps) {
         cars,
         locations,
       });
+
+      if (!result || !result.routes) {
+        throw new Error('Optimization returned invalid result');
+      }
+
       console.log('Optimization result:', result);
       setRoutes(result.routes);
       setOptimizationResult(result);
+      
+      // Log optimization details
+      if (result.unassignedCars.length > 0) {
+        console.warn(`${result.unassignedCars.length} cars could not be assigned`);
+      }
+      
+      if (result.savings > 0) {
+        console.log(`Optimization saved ${result.savings.toFixed(2)} km`);
+      } else if (result.savings < 0) {
+        console.log(`Optimization increased distance by ${Math.abs(result.savings).toFixed(2)} km`);
+      } else {
+        console.log('No distance improvement found');
+      }
     } catch (error) {
-      console.error('Optimization failed:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('Optimization failed:', errorMessage);
+      setOptimizationError(`Optimization failed: ${errorMessage}`);
+      setRoutes([]);
+      setOptimizationResult(null);
     } finally {
       setIsOptimizing(false);
     }
@@ -309,8 +358,9 @@ export function PlanningProvider({ children }: PlanningProviderProps) {
       });
     });
     
-    // Clear optimization result
+    // Clear optimization result and error
     setOptimizationResult(null);
+    setOptimizationError(null);
   }, [optimizationResult, cars]);
 
   // ============================================
@@ -422,6 +472,7 @@ export function PlanningProvider({ children }: PlanningProviderProps) {
     routes,
     optimizationResult,
     isOptimizing,
+    optimizationError,
     
     // Search
     searchQuery,
@@ -514,11 +565,12 @@ export function useAssignments() {
 }
 
 export function useOptimization() {
-  const { routes, optimizationResult, isOptimizing, runOptimization, applyOptimization } = usePlanning();
+  const { routes, optimizationResult, isOptimizing, optimizationError, runOptimization, applyOptimization } = usePlanning();
   return {
     routes,
     optimizationResult,
     isOptimizing,
+    optimizationError,
     runOptimization,
     applyOptimization,
   };
