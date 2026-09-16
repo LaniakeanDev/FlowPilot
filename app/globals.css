@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Drag and drop styles */
+.drag-item {
+  cursor: grab;
+}
+
+.drag-item:active {
+  cursor: grabbing;
+}
+
+.drag-over {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 2px dashed rgba(59, 130, 246, 0.5);
+}
+
+/* Custom badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Map container */
+.map-container {
+  height: calc(100vh - 180px);
+  min-height: 600px;
+}
+
+/* Header styles */
+.header {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Card styles */
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+/* Table styles */
+.table-container {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Sidebar styles */
+.sidebar {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Notification/toast styles */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
