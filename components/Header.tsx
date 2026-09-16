@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 // FlowPilot - Header Component
 
 import { usePlanning, useSearch } from '../context/PlanningContext';
@@ -13,9 +14,10 @@ export default function Header() {
       <div className="flex items-center justify-between">
         {/* Logo and Title */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          {/* <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">FP</span>
-          </div>
+          </div> */}
+          <Image src="/logo.png" alt="FlowPilot Logo" width={128} height={32} className='rounded-lg' />
           <div>
             <h1 className="text-xl font-bold text-gray-900">FlowPilot</h1>
             <p className="text-sm text-gray-500">CEVA FVL Planning Tool</p>

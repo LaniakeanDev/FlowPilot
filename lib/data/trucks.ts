@@ -38,7 +38,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[0],
-    currentLocation: 'DEPOT-PARIS',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   {
@@ -46,7 +46,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[1],
-    currentLocation: 'DEPOT-PARIS',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   {
@@ -54,7 +54,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[2],
-    currentLocation: 'DEPOT-PARIS',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   // Trucks based at Lyon Depot
@@ -63,7 +63,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[3],
-    currentLocation: 'DEPOT-LYON',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   {
@@ -71,7 +71,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[4],
-    currentLocation: 'DEPOT-LYON',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   // Trucks based at Marseille Depot
@@ -80,7 +80,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[5],
-    currentLocation: 'DEPOT-MARSEILLE',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   {
@@ -88,7 +88,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[6],
-    currentLocation: 'DEPOT-MARSEILLE',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   // Additional trucks for larger scenarios
@@ -97,7 +97,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[7],
-    currentLocation: 'DEPOT-PARIS',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   {
@@ -105,7 +105,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[8],
-    currentLocation: 'DEPOT-LYON',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
   {
@@ -113,7 +113,7 @@ const trucks: Truck[] = [
     capacity: TRUCK_CAPACITY,
     weightLimit: TRUCK_WEIGHT_LIMIT,
     driver: drivers[9],
-    currentLocation: 'DEPOT-PARIS',
+    currentLocation: 'DEPOT-MARCKOLSHEIM',
     status: 'available',
   },
 ];

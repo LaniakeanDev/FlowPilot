@@ -18,10 +18,10 @@ const locations: Location[] = [
     type: 'depot',
   },
   {
-    id: 'DEPOT-LYON',
-    name: 'CEVA Depot Lyon',
-    address: '456 Avenue des Transports, 69000 Lyon, France',
-    coordinates: { lat: 45.7640, lng: 4.8357 },
+    id: 'DEPOT-MARCKOLSHEIM',
+    name: 'CEVA MARCKOLSHEIM',
+    address: '456 Avenue des Transports, 67390 Marckolsheim, France',
+    coordinates: { lat: 48.1647, lng: 7.5447 },
     type: 'depot',
   },
   {
@@ -36,17 +36,17 @@ const locations: Location[] = [
   // Pickup Locations (Manufacturing plants)
   // ============================================
   {
-    id: 'PLANT-PARIS',
-    name: 'Paris Manufacturing Plant',
-    address: 'Zone Industrielle Paris Nord, 93420 Villepinte, France',
-    coordinates: { lat: 48.9686, lng: 2.5206 },
+    id: 'PLANT-TOYOTA MOTOR MANUFACTURING',
+    name: 'ONNAING Manufacturing Plant',
+    address: 'Zone Industrielle ONNAING, 59264 Onnaing, France',
+    coordinates: { lat: 50.3864, lng: 3.6006 },
     type: 'pickup',
   },
   {
-    id: 'PLANT-RENNES',
-    name: 'Rennes Manufacturing Plant',
-    address: 'Usine Renault, 35000 Rennes, France',
-    coordinates: { lat: 48.1147, lng: -1.6794 },
+    id: 'PLANT-RENAULT MAUBEUGE',
+    name: 'MAUBEUGE Manufacturing Plant',
+    address: 'Usine Renault, 59604 Maubeuge, France',
+    coordinates: { lat: 50.2775, lng: 3.9733 },
     type: 'pickup',
   },
   
